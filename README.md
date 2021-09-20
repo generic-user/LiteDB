@@ -2,46 +2,52 @@
 
 [![Join the chat at https://gitter.im/mbdavid/LiteDB](https://badges.gitter.im/mbdavid/LiteDB.svg)](https://gitter.im/mbdavid/LiteDB?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Build status](https://ci.appveyor.com/api/projects/status/sfe8he0vik18m033?svg=true)](https://ci.appveyor.com/project/mbdavid/litedb) [![Build Status](https://travis-ci.org/mbdavid/LiteDB.svg?branch=master)](https://travis-ci.org/mbdavid/LiteDB)
 
-LiteDB is a small, fast and lightweight NoSQL embedded database. 
+---
+
+LiteDB is a small, fast and lightweight .NET NoSQL embedded database. 
 
 - Serverless NoSQL Document Store
-- Simple API similar to MongoDB
-- 100% C# code for .NET 3.5 / .NET 4.0 / NETStandard 1.3 / NETStandard 2.0 in a single DLL (less than 300kb)
-- Thread safe and process safe
-- ACID in document/operation level
-- Data recovery after write failure (journal mode)
+- Simple API, similar to MongoDB
+- 100% C# code for .NET 4.5 / NETStandard 1.3/2.0 in a single DLL (less than 450kb)
+- Thread-safe
+- ACID with full transaction support
+- Data recovery after write failure (WAL log file)
 - Datafile encryption using DES (AES) cryptography
 - Map your POCO classes to `BsonDocument` using attributes or fluent mapper API
 - Store files and stream data (like GridFS in MongoDB)
 - Single data file storage (like SQLite)
-- Index document fields for fast search (up to 16 indexes per collection)
+- Index document fields for fast search
 - LINQ support for queries
-- Shell command line - [try this online version](http://www.litedb.org/#shell)
-- Pretty fast - [compare results with SQLite here](https://github.com/mbdavid/LiteDB-Perf)
+- SQL-Like commands to access/transform data
+- [LiteDB Studio](https://github.com/mbdavid/LiteDB.Studio) - Nice UI for data access 
 - Open source and free for everyone - including commercial use
 - Install from NuGet: `Install-Package LiteDB`
 
-## New in 4.0
-- New `Expressions/Path` index/query support. See [Expressions](https://github.com/mbdavid/LiteDB/wiki/Expressions)
-- Nested `Include` support
-- Optimized query execution (with explain plain debug)
-- Fix concurrency problems
-- Remove transaction and auto index creation
-- Support for full scan search and LINQ search
-- New shell commands: update fields based on expressions and select/transform documents
-- See full [changelog](https://github.com/mbdavid/LiteDB/wiki/Changelog)
 
-## Try online
+## New v5
 
-[Try LiteDB Web Shell](http://www.litedb.org/#shell). For security reasons, in the online version not all commands are available. Try the offline version for full feature tests.
+- New storage engine
+- No locks for `read` operations (multiple readers)
+- `Write` locks per collection (multiple writers)
+- Internal/System collections 
+- New `SQL-Like Syntax`
+- New query engine (support projection, sort, filter, query)
+- Partial document load (root level)
+- and much, much more!
+
+## Lite.Studio
+
+New UI to manage and visualize your database:
+
+![LiteDB.Studio](https://camo.githubusercontent.com/61465032cd9df0ccb7c0ff4a2d4f1cf772cdaa14/68747470733a2f2f7062732e7477696d672e636f6d2f6d656469612f454f58564b7674583041412d6c64793f666f726d61743d6a7067266e616d653d6d656469756d)
 
 ## Documentation
 
 Visit [the Wiki](https://github.com/mbdavid/LiteDB/wiki) for full documentation. For simplified chinese version, [check here](https://github.com/lidanger/LiteDB.wiki_Translation_zh-cn).
 
-## Download
+## LiteDB Community
 
-Download the source code or binary only in [LiteDB Releases](https://github.com/mbdavid/LiteDB/releases)
+Help LiteDB grow its user community by answering this [simple survey](https://docs.google.com/forms/d/e/1FAIpQLSc4cNG7wyLKXXcOLIt7Ea4TlXCG6s-51_EfHPu2p5WZ2dIx7A/viewform?usp=sf_link)
 
 ## How to use LiteDB
 
@@ -65,25 +71,25 @@ using(var db = new LiteDatabase(@"MyData.db"))
     var col = db.GetCollection<Customer>("customers");
 
     // Create your new customer instance
-	var customer = new Customer
+    var customer = new Customer
     { 
         Name = "John Doe", 
         Phones = new string[] { "8000-0000", "9000-0000" }, 
         Age = 39,
         IsActive = true
     };
-    
+
     // Create unique index in Name field
     col.EnsureIndex(x => x.Name, true);
-	
+
     // Insert new customer document (Id will be auto-incremented)
     col.Insert(customer);
-	
+
     // Update a document inside a collection
     customer.Name = "Joana Doe";
-	
+
     col.Update(customer);
-	
+
     // Use LINQ to query documents (with no index)
     var results = col.Find(x => x.Age > 20);
 }
@@ -105,7 +111,7 @@ public class Order
 // Re-use mapper from global instance
 var mapper = BsonMapper.Global;
 
-// "Produts" and "Customer" are from other collections (not embedded document)
+// "Products" and "Customer" are from other collections (not embedded document)
 mapper.Entity<Order>()
     .DbRef(x => x.Customer, "customers")   // 1 to 1/0 reference
     .DbRef(x => x.Products, "products")    // 1 to Many reference
@@ -135,30 +141,31 @@ using(var db = new LiteDatabase("MyOrderDatafile.db"))
 
 - Desktop/local small applications
 - Application file format
-- Small web applications
+- Small web sites/applications
 - One database **per account/user** data store
-- Few concurrent write operations
 
-## 3rd Party Tools for LiteDB
+## Plugins
 
-- A GUI viewer tool: https://github.com/falahati/LiteDBViewer
-- A GUI editor tool: https://github.com/JosefNemec/LiteDbExplorer 
-- LiteDB Manager tool : https://darwich.mx/downloads/
+- A GUI viewer tool: https://github.com/falahati/LiteDBViewer (v4)
+- A GUI editor tool: https://github.com/JosefNemec/LiteDbExplorer (v4)
 - Lucene.NET directory: https://github.com/sheryever/LiteDBDirectory
 - LINQPad support: https://github.com/adospace/litedbpad
-- F# support: https://github.com/Zaid-Ajaj/LiteDB.FSharp
-- PowerShell wrapper - https://github.com/v2kiran/PSLiteDB
+- F# Support: https://github.com/Zaid-Ajaj/LiteDB.FSharp
+- UltraLiteDB (for Unity or IOT): https://github.com/rejemy/UltraLiteDB
+
 
 ## Changelog
 
 Change details for each release are documented in the [release notes](https://github.com/mbdavid/LiteDB/releases).
 
+## Code Signing
+
+LiteDB is digitally signed courtesy of [SignPath](https://www.signpath.io)
+
+<a href="https://www.signpath.io">
+    <img src="https://about.signpath.io/assets/logo_signpath_500.png" width="150">
+</a>
+
 ## License
 
 [MIT](http://opensource.org/licenses/MIT)
-
-Copyright (c) 2017 - Maurício David
-
-## Thanks
-
-A special thanks to @negue and @szurgot helping with portable version and @lidanger for simplified chinese translation. 
